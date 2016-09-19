@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Group Chat</title>
+	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+ 	<script type ="text/javascript" src="/socket.io/socket.io.js"></script>
+ 	<script>
+ 		$(document).ready(function(){
+ 			var name = prompt('What is your name?');
+ 			var socket = io.connect();
+ 			socket.emit('got_a_new_user', {name: name}); 
+
+ 			$('#submit-message').submit(function(e){
+ 				e.preventDefault();
+ 				var message = document.getElementById('message').value
+ 				socket.emit("message_sent", {message: message});
+ 				$("form").trigger("reset");
+ 				// console.log(this);
+ 			});
+ 			socket.on("new_user", function(data){
+ 				$("#message-box").append("<span class='grey'>"+data.message+"</span><br>");
+ 				console.log(data.message)
+ 				console.log(data.existing_users)
+ 			});
+ 			socket.on("message_received", function(data){
+ 				$("#message-box").append("<span class='bold'>"+data.name+":</span> "+data.message+"<br>");
+ 			})
+ 			socket.on("user_left", function(data){
+ 				$("#message-box").append("<span class='grey'>"+data.message+"</span><br>");
+ 			})
+ 		});
+ 	</script>
+	<style>
+		#header{
+/*			height:4vh;*/
+			width:600px;
+			margin:5px auto;
+		}
+		.bold{
+			font-weight:bold;
+		}
+		.grey{
+			color:grey;
+			font-style:italic;
+		}
+		#message-box{
+			border:1px solid grey;
+			height:400px;
+			width:580px;
+			padding:10px;
+/*			padding:20px;*/
+			margin:0 auto 10px auto;
+			overflow:scroll;
+		}
+		#write-message{
+			width:600px;
+/*			padding:10px;*/
+			/*margin-left:7vw;*/
+			margin:auto;
+		}
+		#write-message input[type='text']{
+			width: 525px;
+			padding: 5px 10px;
+			display:inline-block;
+			border:1px solid black;
+		}
+		#write-message input[type='submit']{
+			background-color:white;
+			border:1px solid black;
+			color:black;
+			padding:5px;
+			margin:5px 0;
+/*			border-radius:5px;*/
+			display:inline-block;
+		}
+		#write-message input[type='submit']:hover{
+			color:white;
+			background:black;
+		}
+	</style>
+</head>
+<body>
+<div id="header"><h3>Conversation board</h3></div>
+<div id="message-box">
+</div>
+<div id="write-message">
+	<form id="submit-message">
+		<input id="message" type='text' name="message" placeholder="Enter your message here">
+		<input type="submit">
+	</form>
+</div>
+</body>
+</html>
